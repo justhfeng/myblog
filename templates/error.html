@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+    {% block title %}
+        我的博客|error
+    {% endblock %}
+
+    {% block navbar-home-active %}
+        active
+    {% endblock %}
+
+    {% block content %}
+        <p>錯誤提示：{{ message }}</p>
+        <a href={{ redirect_to }}>返回</a>
+    {% endblock %}

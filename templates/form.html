@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+    {% block title %}
+        {{ page_title }}
+    {% endblock %}
+
+    {% block content %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 offset-md-4">
+                    <div class="card">
+                        <div class="card-header">{{ form_title }}</div>
+                        <div class="card-body">
+                            <form action="" method="POST">  <!-- 通過urlpattern裏面的name查找的, 为什么这个action要为空，request.GET.get('from')才能取到数-->
+                                {% csrf_token %}
+                                {% for field in form %}
+                                    {% if not field.is_hidden %}  <!--不要忘了判断是否隐藏，要不然都显示了-->
+                                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        {{ field }}
+                                    {% endif %}
+                                    <p class="text-danger">{{ field.errors.as_text }}</p>
+                                {% endfor %}
+                                <span id="tip" class="text-danger" style="margin-bottom: 0.5em">{{ form.non_field_errors }}</span>
+                                <div class="clearfix"></div>
+                                <div class="float-right">
+                                    <input type="submit" value="{{ submit_text }}" class="btn btn-primary">
+                                    <button class="btn btn-primary" onclick="window.location.href='{{ return_back }}'">返回</button>
+                                </div>
+                                {% block form_extends%}{% endblock %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

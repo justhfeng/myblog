@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+    {% block title %}
+        我的博客|home
+    {% endblock %}
+
+    {% block headextend %}
+        <link rel="stylesheet" href="{% static "home.css" %}">
+        <script src="http://cdn.hcharts.cn/highcharts/highcharts.js"></script>
+    {% endblock %}
+
+    {% block navbar-home-active %}
+        active
+    {% endblock %}
+
+    {% block content %}
+        <p class="home-content">这是我的博客，请随意查看！</p>
+        <!-- 图标容器 -->
+        <div id="container" style="max-width:800px;height:400px"></div>
+        <div class="hot-blog">
+            <h3>今日热门博客</h3>
+            {% for hot_read_detail in hot_read_details_today %}
+                <ul>
+                {# 读取对应model中的id和阅读数据            #}
+                <a href="{% url 'blog_detail' hot_read_detail.content_object.id %}">{{ hot_read_detail.content_object.title}}</a>({{ hot_read_detail.read_num }})
+            {% empty %}
+                <p>暂无今日热门博客</p>
+                </ul>
+            {% endfor %}
+        </div>
+        <div class="hot-blog">
+            <h3>昨日热门博客</h3>
+            {% for hot_read_detail in hot_read_details_yesterday %}
+                <ul>
+                {# 读取对应model中的id和阅读数据            #}
+                <a href="{% url 'blog_detail' hot_read_detail.content_object.id %}">{{ hot_read_detail.content_object.title}}</a>({{ hot_read_detail.read_num }})
+            {% empty %}
+                <p>暂无昨日热门博客</p>
+                </ul>
+            {% endfor %}
+        </div>
+        <div class="hot-blog">
+            <h3>近7日热门博客</h3>
+            {% for hot_blog in hot_blogs_7_days %}
+                <ul>
+                {# 读取对应model中的id和阅读数据 #}
+                <a href="{% url 'blog_detail' hot_blog.id %}">{{ hot_blog.title }}</a>({{ hot_blog.read_num_sum }})
+            {% empty %}
+                <p>暂无近7日热门博客</p>
+                </ul>
+            {% endfor %}
+        </div>
+        <script>
+            var chart = Highcharts.chart('container', {
+            title: {
+                text: '最近7天博客阅读量'
+            },
+            xAxis: {
+                title: {text: '日期'},
+                categories: {{ dates|safe }}, //横坐标
+                tickmarkPlacement: 'on', //刻度是在中间还是在两侧
+            },
+            yAxis: {
+                title: {text: null},
+                labels: {enabled: false}, //取消刻度标签
+            },
+            legend: {
+                enabled: false, //图例
+            },
+            series: [{
+                name: '阅读量',
+                data: {{ read_nums }}
+            }],
+            credits: {enabled: false}, //去掉版权信息
+        });
+        </script>
+    {% endblock %}

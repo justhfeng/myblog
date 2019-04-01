@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load comment_tags %}
+{% load thumb_tags %}
+    {% block headextend %}
+        <link rel="stylesheet" href="{% static 'mainsite/mainsite.css' %}">
+        <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+        <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+    {% endblock %}
+    {% block title %}{{ blog.title }}{% endblock %}
+    {% block content %}
+        <div class="container">
+            {# 显示博客内容 #}
+            <div class="row">
+                <div class="col-md-10 offset-md-1">
+                    <h3>{{ blog.title }}</h3>
+                    <ul class="blog-info-description">
+                        <li>
+                            <span class="fas fa-tags"></span>
+                            <a href="{% url 'blog_with_type' blog.blog_type_id%}"> {{ blog.blog_type }}</a>
+                        </li>
+                        <li><span class="fas fa-feather-alt"></span>
+                            {{ blog.author.get_nickname_and_username }}
+                        </li>
+                        <li><span class="far fa-clock"></span> {{ blog.created_time|date:"Y-m-d H:i:s" }}</li>
+                        <li><sapn class="far fa-eye"></sapn> {{ blog.get_read_time }}</li>
+                        <li><span class="far fa-comments"></span> <span id="comments_count">{% get_comments_count blog %}</span></li>
+                    </ul>
+                    <div class="blog-content">{{ blog.content|safe }}</div>
+                    {# 显示点赞数和点赞内容 #}
+                    <div class="thumb_up" onclick="ThumbUp(this, '{% get_content_type_model blog %}', {{ blog.pk }})">
+                        <span class="far fa-thumbs-up {% get_thumb_status blog %}"></span>
+                        <span class="thumb_count">{% get_thumb_count blog %}</span>
+                        <span>喜欢</span>
+                    </div>
+                    {# 显示上下一篇文章 #}
+                    <div class="nav_detail_page">
+                        {% if last_blog %}
+                            <p>上一篇：<a href="{% url 'blog_detail' last_blog.pk %}">{{ last_blog.title }} </a></p>
+                        {% else %}
+                            <p>上一篇：无</p>
+                        {% endif %}
+                         {% if next_blog %}
+                            <p>下一篇：<a href="{% url 'blog_detail' next_blog.pk %}">{{ next_blog.title }} </a></p>
+                        {% else %}
+                            <p>下一篇：无</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# 显示提交评论以及评论内容 #}
+            <div class="row">
+                <div class="col-md-10 offset-md-1">
+                    <div style="margin-top:2em; border: dashed lavender; padding:1em">
+                        {% if user.is_authenticated %}
+                            <form id='comment_form' action="{% url 'add_comment' %}" method="POST">
+                                <label for="comment-text">{{ user.get_nickname_or_username }}，请提交评论</label>
+                                <div id="reply_content_container" style="display:none">
+                                    <p id="reply_p">回复：</p>
+                                    <div id="reply_content"></div>
+                                </div>
+                                <div class="form-group">
+                                    {% csrf_token %}
+                                    {% get_comment_form blog as comment_form %}
+                                    {% for field in comment_form %}
+                                        {{ field }}
+                                    {% endfor %}
+                                </div>
+                                <div class="form-group">
+                                    <span id="form_error" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <input type="submit" value="提交" class="btn btn-primary">
+                                </div>
+                            </form>
+
+                        {% else %}
+                            您还未登陆，请先登陆或注册.
+                            <a href="{% url 'login' %}?from={{ request.get_full_path }}" class="btn btn-primary">登陆</a>
+                            <a href="{% url 'register' %}?from={{ request.get_full_path }}" class="btn btn-danger">注册</a>
+                        {% endif %}
+                    </div>
+                    <div  style="margin-top:2em; border: dashed lavender; padding:1em">
+                        <h3>评论列表区</h3>
+                        <div id='comment_display'>
+                            {% get_comments blog as comments %}
+                            {% for comment in comments %}
+                                <div id="root_{{ comment.id }}" class="comment">
+                                    <span>{{ comment.author.get_nickname_or_username }}</span>
+                                    <span>({{ comment.comment_time|date:"Y-m-d H:i:s"}})：</span>
+                                    <div id="comment_{{ comment.id }}">
+                                        {{ comment.comment_text|safe }}
+                                    </div>
+                                    <div class="thumb_up" onclick="ThumbUp(this, '{% get_content_type_model comment %}', {{ comment.pk }})">
+                                    {# 为什么这个 '{% get_content_type_model comment %}'一定要加''#}
+                                        <span class="far fa-thumbs-up {% get_thumb_status comment %}"></span>
+                                        <span class="thumb_count">{% get_thumb_count comment %}</span>
+                                    </div>
+                                    <a href="javascript: reply({{ comment.id }})">回复</a>
+
+                                    {% for reply in comment.root_comment.all %}
+                                        <div class="reply">
+                                        {# 格式 某某（时间）回复：具体内容#}
+                                            <span>{{ reply.author.get_nickname_or_username }}</span>
+                                            <span>({{ reply.comment_time|date:"Y-m-d H:i:s" }})回复{{ reply.reply_to.get_nickname_or_username }}：</span>
+                                            <div id="comment_{{ reply.id }}">
+                                                {{ reply.comment_text|safe }}
+                                            </div>
+                                            <div class="thumb_up" onclick="ThumbUp(this, '{% get_content_type_model reply %}', {{ reply.pk }})">
+                                                <span class="far fa-thumbs-up {% get_thumb_status reply %}"></span>
+                                                <span class="thumb_count">{% get_thumb_count reply %}</span>
+                                            </div>
+                                            <a href="javascript: reply({{ reply.id }})">回复</a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% empty %}
+                                <span id="no_comment">暂无评论</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+    {% endblock %}
+    {% block script_extends %}
+        <script type="text/javascript">
+            String.prototype.format = function(){
+                //记得要从0开始替换
+                let str = this;
+                for(let i=0;i<arguments.length; i++){
+                    str = str.replace(new RegExp('\\{' + i + '\\}', 'g'), arguments[i])
+                }
+                return str;
+            };
+
+            $('#comment_form').submit(function(){
+                //评论内容不能为空，并在后端设置评论内容不能为空,记得return false,否则还会保存评论内容。需要在之前清空错误内容,否则评论错误会一直显示
+                $('#form_error').text('');
+                if(CKEDITOR.instances['id_comment'].document.getBody().getText().trim()===''){
+                    $('#form_error').text('评论内容不能为空-前端提示');
+                    return false;
+                }
+                // 更新数据到textarea???,否则执行提交的时候会选择上一次输入的数据
+                CKEDITOR.instances['id_comment'].updateElement();
+                {#异步提交数据#}
+                $.ajax({
+                    url: '{% url 'add_comment' %}',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    cache: false,
+                    success:function(data){
+                        console.log(data);if(data['status'] === 'success'){
+                            if($('#reply_comment_id').val() !== '0') {
+                                //回复 reply_comment_id是form里面的一个字段
+                                {#let reply_html = '<div class="reply"> <span>' + data['username'] + '</span><span>(' + TimeFormat(data['comment_time'])#}
+                                {#    + ')回复' + data['reply_to_username'] + '：</span><div id="comment_' + data['pk'] +'">' + data['comment_text']#}
+                                {#    + '</div><a href="javascript: reply(' + data['pk'] + ')">回复</a></div>';#}
+                                let reply_html2 =
+                                    '<div class="reply">' +
+                                        '<span>{0}</span>' +
+                                        '<span>({1})回复{2}：</span>' +
+                                        '<div id="comment_{3}"> {4} </div>' +
+                                        '<div class="thumb_up" onclick="ThumbUp(this, \'{5}\', {3})">' +
+                                            '<span class="far fa-thumbs-up"></span> ' +
+                                            '<span class="thumb_count">0</span>' +
+                                        '</div>' +
+                                        '<a href="javascript: reply({3})"> 回复</a>' +
+                                    '</div>';
+                                reply_html2 = reply_html2.format(data['username'],TimeFormat(data['comment_time']),data['reply_to_username'],data['pk'],
+                                    data['comment_text'], data['content_type']);
+                                //记得使用data数据而非//}}的数据,为什么不能用这种数据，因为ajax需要纯html文本格式
+                                $('#root_' + data['root_pk']).append(reply_html2); //记得这个是append，append到哪里需要有个定位，即root_id
+                            }else{
+                                //评论
+                                {#let comment_html = '<div id="root_' + data['pk'] + '"class="comment"><span>'+ data['username'] + '</span><span>('+#}
+                                {#    TimeFormat(data['comment_time']) + ')：</span><div id="comment_' + data['pk'] + '">' + data['comment_text']  +#}
+                                {#    '</div><a href="javascript:reply(' + data['pk'] + ');">回复</a></div>';#}
+                                let comment_html2 =
+                                    '<div id="root_{0}" class="comment">' +
+                                        '<span>{1}</span>' +
+                                        '<span>({2})：</span>' +
+                                        '<div id="comment_{0}">{3}</div>' +
+                                        '<div class="thumb_up" onclick="ThumbUp(this, \'{4}\', {0})">' +  // 注意5旁边加了\
+                                            '<span class="far fa-thumbs-up"></span> ' +
+                                            '<span class="thumb_count">0</span> ' +
+                                        '</div>' +
+                                        '<a href="javascript: reply({0})"> 回复</a>' +
+                                    '</div>';
+                                comment_html2 = comment_html2.format(data['pk'], data['username'], TimeFormat(data['comment_time']), data['comment_text'], data['content_type']);
+                                // 用format替换后端返回内容,!!!不要忘了comment_html2=comment_html2.format()
+                                $('#comment_display').prepend(comment_html2);
+                            }
+                            // 清空编辑框中的内容,隐藏reply_content_container，将reply_comment_id设为0，!!!不再显示没有comment
+                            CKEDITOR.instances['id_comment'].setData('');
+                            $('#reply_comment_id').val(0);
+                            $('#reply_content_container').hide();
+                            $('#no_comment').remove();
+                            $('#comments_count').text(data['comments_count']);
+                        }else{
+                            $('#form_error').text(data['message'])//显示错误
+                        }
+                    },
+                    error:function(xhr){
+                        console.log(xhr)
+                    },
+                });
+                return false; //这是干什么用的？
+            });
+
+            {# 点击回复，输入框上方被回复内容显示，页面跳转到输入框，并定位到输入框 #}
+            function reply(reply_comment_id){  {#点击回复后界面的操作#}
+                //设置回复的值
+                $('#reply_comment_id').val(reply_comment_id);
+                //界面上移，并将焦点聚焦到输入框中
+                $('html').animate({scrollTop: $('#comment_form').offset().top -60}, 300, function(){
+                    CKEDITOR.instances['id_comment'].focus(); {# 不是instances('#id_comment') #}
+                    {#点击一次之后就没用啦！！！！#}
+                });
+                //在输入框上方显示需要回复的内容
+                let html = $('#comment_' + reply_comment_id).html();  {#这里应该填什么！！！！之前应该做什么#}
+                $('#reply_content').html(html);
+                $('#reply_content_container').show();
+            }
+            {#如何返回提交的数据到后台呢？这个又回到了submit上面#}
+
+            {# 将时间戳的秒数改为年月日时分秒 #}
+            function TimeFormat(timestamp){
+                let datetime = new Date(timestamp*1000); {# ！！！s -> ms#}
+                let year = datetime.getFullYear(datetime);
+                let month = NumFormat(datetime.getMonth()+1); {# ！！！从0开始算的 #}
+                let day = NumFormat(datetime.getDay());
+                let hour = NumFormat(datetime.getHours());
+                let minute = NumFormat(datetime.getMinutes());
+                let second = NumFormat(datetime.getSeconds());
+                return year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':'+ second;
+            }
+            {# 取两位数 #}
+            function NumFormat(num){
+                return ('00'+ num).substr(-2)
+            }
+
+            {# 点赞状态修改 #}
+            function ThumbUp(obj, content_type, obj_pk){
+                // 是否有必要单独设计一个is_like用于判断用户是否登陆，是否可以改成后端返回一个is_like
+                $.ajax({
+                    url:{% url 'thumb_up' %},
+                    type: 'GET',
+                    data: {
+                        content_type: content_type,
+                        object_id: obj_pk,
+                    },
+                    cache: false,
+                    success:function(data){
+                        // 判断是否喜欢
+                        console.log(data);
+                        if(data['status']==='SUCCESS'){
+                            // 显示后台给出的数量
+                            $(obj.getElementsByClassName("thumb_count")).text(data['thumbs_count']);
+                            // 点赞后状态变化；创建后则增加active状态，非创建则取消active状态
+                            //这个obj是什么东西，为什么他能定位到特定的框，即使class有所重复，为什么不直接使用$('#thumb_count')
+                            let element = $(obj.getElementsByClassName("fa-thumbs-up"));
+                            if(data['message'] === 'created'){
+                                element.addClass('active');
+                            }else{
+                                element.removeClass('active');
+                            }
+                        }
+                        else{
+                            //alert(data['message']);
+                            $('#login_modal').modal('show');
+                        }
+                    },
+                    error:function(xhr){
+                        console.log(xhr)
+                    },
+                });
+                return false;
+            }
+
+        </script>
+    {% endblock %}

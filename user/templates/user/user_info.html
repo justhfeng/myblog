@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+    {% block title %}用户信息{% endblock %}
+
+    {% block content %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 offset-md-1">
+                    {% if user.is_authenticated %}
+                        <ul>
+                            <li><h2>{{ user.username }}</h2></li>
+{#                            <li>昵称：#}
+{#                                {% if user.profile.nickname %}#}
+{#                                    {{ user.profile.nickname }} <a href="{% url 'change_nickname' %}?from={{ request.get_full_path }}">修改昵称</a>#}
+{#                                {% else %}未填写昵称，<a href="{% url 'change_nickname' %}?from={{ request.get_full_path }}">输入昵称</a>#}
+{#                                {% endif %}#}
+{#                            </li>#}
+                            <li>昵称：{{ user.get_nickname }}
+                                <a href="{% url 'change_nickname' %}?from={{ request.get_full_path }}">创建或修改昵称</a>
+                            </li>
+                            
+                            <li>邮箱：
+                                {% if user.email %}
+                                    {{ user.email }} <a href="{% url 'change_email' %}?from={{ request.get_full_path }}">修改邮箱地址</a>
+                                {% else %}
+                                    邮箱未绑定，<a href="{% url 'change_email' %}?from={{ request.get_full_path }}">绑定邮箱地址</a>
+                                {% endif %}
+                            </li>
+                            <li>最近登陆时间：{{ user.last_login | date:'Y-m-d H:i:s' }}</li>
+                        </ul>
+                        <a href="{% url 'change_password' %}">修改密码</a>
+                    {% else %}
+                        <span>尚未登陆，即将跳转首页......</span>
+                        <script language="javascript" type="text/javascript">
+                               function redirect_home(){
+                                   window.location.href="{% url 'home' %}";
+                               }
+                               setTimeout("redirect_home()", "2000");
+                        </script>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endblock %}

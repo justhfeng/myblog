@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+    {% block title %}
+        我的博客|login
+    {% endblock %}
+
+    {% block headextend %}
+        <link rel="stylesheet" href="{% static "home.css" %}">
+    {% endblock %}
+
+    {% block navbar-home-active %}
+        active
+    {% endblock %}
+
+    {% block content %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 offset-md-4">
+                    {% if not user.is_authenticated %}
+                        <div class="card">
+                        <div class="card-header">登陆框</div>
+                        <div class="card-body">
+                            <form action="" method="POST">  <!-- 通過urlpattern裏面的name查找的, 为什么这个action要为空，request.GET.get('from')才能取到数-->
+                                {% csrf_token %}
+                                {# 用户名：<input type="username" name="username">#}
+                                {# 密码：<input type="password" name="password">#}
+                                {% for field in form %}
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    <p class="text-danger">{{ field.errors.as_text }}</p>
+                                {% endfor %}
+                                <a href="{% url 'reset_password' %}">忘记密码</a>
+                                <span class="text-danger pull-left">{{ form.non_field_errors }}</span>
+                                <input type="submit" value="登陆" class="btn btn-primary float-right">
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                        <script language="javascript" type="text/javascript">
+                            window.location.href="{% url 'home' %}";
+                        </script>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endblock %}
