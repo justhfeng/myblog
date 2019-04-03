@@ -224,19 +224,19 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.templateLanguages.PyTemplateLanguageModulesConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Projects\PycharmProjects\blog\修改用户信息\myblog_env_v5\myblog" />
+      <recent name="D:\Projects\PycharmProjects\修改用户信息\myblog_env_v5\myblog\user\templates\user" />
+      <recent name="D:\Projects\PycharmProjects\修改用户信息\myblog_env_v4\myblog\static\imgs" />
+      <recent name="D:\Projects\PycharmProjects\修改用户信息\myblog_env_v4\myblog\user\templates\user" />
+      <recent name="D:\Projects\PycharmProjects\myblog_env_v2\myblog\user\migrations" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Projects\PycharmProjects\修改用户信息\myblog_env_v4\myblog\templates" />
       <recent name="D:\Projects\PycharmProjects\myblog_env_v2\myblog\user\templates\user" />
       <recent name="D:\Projects\PycharmProjects\myblog_env_v2\myblog\user\templates" />
       <recent name="D:\Projects\PycharmProjects\myblog_env_v2\myblog\user" />
       <recent name="D:\Projects\PycharmProjects\myblog_env_v2\myblog\static\font-awesome\css" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\Projects\PycharmProjects\修改用户信息\myblog_env_v5\myblog\user\templates\user" />
-      <recent name="D:\Projects\PycharmProjects\修改用户信息\myblog_env_v4\myblog\static\imgs" />
-      <recent name="D:\Projects\PycharmProjects\修改用户信息\myblog_env_v4\myblog\user\templates\user" />
-      <recent name="D:\Projects\PycharmProjects\myblog_env_v2\myblog\user\migrations" />
-      <recent name="D:\Projects\PycharmProjects\myblog_env_v2\myblog\user" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -357,7 +357,7 @@
       <workItem from="1554102781336" duration="1731000" />
       <workItem from="1554123022458" duration="4210000" />
       <workItem from="1554161800285" duration="5137000" />
-      <workItem from="1554282597091" duration="1381000" />
+      <workItem from="1554282597091" duration="1779000" />
     </task>
     <task id="LOCAL-00001" summary="修改requirements">
       <created>1554285285514</created>
@@ -370,7 +370,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="474400000" />
+    <option name="totallyTimeSpent" value="474798000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
