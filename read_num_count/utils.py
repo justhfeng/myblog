@@ -83,7 +83,6 @@ def hot_read_blogs_7_days(ct):
                         .annotate(read_num_sum=Sum('read_detail__read_num'))\
                         .order_by('-read_num_sum')
     hot_blogs = Blog.objects.filter(read_detail__content_type=ct, read_detail__read_date__gte=seven_days_befor_today, read_detail__read_date__lt=today).values('id', 'title').annotate(read_num_sum=Sum('read_detail__read_num')).order_by('-read_num_sum')
-    print(hot_blogs[0])
     return hot_blogs[:7]
 
 
