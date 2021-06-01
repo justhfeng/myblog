@@ -4,4 +4,4 @@ django-js-asset==1.1.0
 mysqlclient==1.4.2
 Pillow==5.4.1
 pytz==2018.7
-urllib3==1.24.1
+urllib3==1.26.5
